@@ -106,3 +106,20 @@ def test_suspicious_speed_is_retained_with_quality_warning_not_repaired() -> Non
     observation = result.observations[0]
     assert observation.speed_kmh == 180
     assert "suspicious speed > 160 km/h" in observation.quality.warnings
+
+
+def test_traffic_csv_rejects_nonexistent_berlin_dst_timestamp() -> None:
+    csv_payload = (
+        "detector;timestamp;count;heavy;speed\n"
+        "D1;2026-03-29 02:30:00;100;10;42\n"
+    ).encode()
+
+    result = parse_traffic_csv(
+        csv_payload,
+        schema=schema(),
+        retrieved_at=datetime(2026, 9, 14, 12, tzinfo=UTC),
+        source_url="https://api.viz.berlin.de/daten/verkehrsdetektion",
+    )
+
+    assert result.observations == []
+    assert "does not exist" in result.rejected_rows[0].reasons[0]
