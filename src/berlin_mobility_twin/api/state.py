@@ -39,7 +39,9 @@ class RuntimeState:
 
     @property
     def missing_sources(self) -> list[str]:
-        return sorted(source for source in self.required_sources if source not in self.source_status)
+        return sorted(
+            source for source in self.required_sources if source not in self.source_status
+        )
 
     @property
     def health_status(self) -> str:

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 import uvicorn
 
@@ -127,7 +128,10 @@ def build_parser() -> argparse.ArgumentParser:
     inspect_csv.add_argument("--delimiter", default=";")
     inspect_csv.set_defaults(handler=_cmd_inspect_traffic_csv)
 
-    refresh = subparsers.add_parser("refresh", help="Retrieve currently supported live/open sources")
+    refresh = subparsers.add_parser(
+        "refresh",
+        help="Retrieve currently supported live/open sources",
+    )
     refresh.add_argument("--skip-static", action="store_true")
     refresh.add_argument("--snapshot", help="Optional path for a resulting point-in-time snapshot")
     refresh.set_defaults(handler=_cmd_refresh)
@@ -135,7 +139,11 @@ def build_parser() -> argparse.ArgumentParser:
     serve = subparsers.add_parser("serve", help="Run the versioned FastAPI service")
     serve.add_argument("--host")
     serve.add_argument("--port", type=int)
-    serve.add_argument("--live", action="store_true", help="Retrieve real sources once before serving")
+    serve.add_argument(
+        "--live",
+        action="store_true",
+        help="Retrieve real sources once before serving",
+    )
     serve.add_argument("--skip-static", action="store_true")
     serve.set_defaults(handler=_cmd_serve)
 

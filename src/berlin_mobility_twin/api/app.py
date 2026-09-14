@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Annotated
 
 from fastapi import FastAPI, Query
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +28,11 @@ from berlin_mobility_twin.integration.contracts import (
     export_mobility_snapshot,
     export_network_disruption,
 )
+
+SnapshotTime = Annotated[
+    AwareDatetime | None,
+    Query(description="Timezone-aware point in time"),
+]
 
 
 def _resolve_frontend_dir() -> Path:
@@ -107,9 +113,7 @@ def create_app(state: RuntimeState | None = None, *, serve_frontend: bool = True
         return runtime.disruptions
 
     @app.get("/api/v1/mobility/snapshot", response_model=MobilitySnapshot)
-    def mobility_snapshot(
-        at: AwareDatetime | None = Query(default=None, description="Timezone-aware point in time"),
-    ) -> MobilitySnapshot:
+    def mobility_snapshot(at: SnapshotTime = None) -> MobilitySnapshot:
         moment = at.astimezone(UTC) if at is not None else datetime.now(UTC)
         return runtime.snapshot(moment)
 
@@ -117,9 +121,7 @@ def create_app(state: RuntimeState | None = None, *, serve_frontend: bool = True
         "/api/v1/integration/mobility-snapshot",
         response_model=IntegrationMobilitySnapshot,
     )
-    def integration_mobility_snapshot(
-        at: AwareDatetime | None = Query(default=None, description="Timezone-aware point in time"),
-    ) -> IntegrationMobilitySnapshot:
+    def integration_mobility_snapshot(at: SnapshotTime = None) -> IntegrationMobilitySnapshot:
         moment = at.astimezone(UTC) if at is not None else datetime.now(UTC)
         return export_mobility_snapshot(
             runtime.snapshot(moment),
@@ -131,9 +133,7 @@ def create_app(state: RuntimeState | None = None, *, serve_frontend: bool = True
         "/api/v1/integration/network-disruptions",
         response_model=list[NetworkDisruption],
     )
-    def integration_network_disruptions(
-        at: AwareDatetime | None = Query(default=None, description="Timezone-aware point in time"),
-    ) -> list[NetworkDisruption]:
+    def integration_network_disruptions(at: SnapshotTime = None) -> list[NetworkDisruption]:
         moment = at.astimezone(UTC) if at is not None else datetime.now(UTC)
         active = runtime.snapshot(moment).disruptions
         return [export_network_disruption(item, timestamp=moment) for item in active]

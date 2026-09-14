@@ -77,12 +77,14 @@ def parse_feed_message(
     header = getattr(feed, "header", None)
     timestamp_value = None
     if header is not None and _has(header, "timestamp"):
-        raw_timestamp = int(getattr(header, "timestamp"))
+        raw_timestamp = int(header.timestamp)
         if raw_timestamp > 0:
             timestamp_value = datetime.fromtimestamp(raw_timestamp, tz=UTC)
 
     freshness, feed_age, warnings = _feed_freshness(
-        timestamp_value, retrieved_at, stale_after_seconds
+        timestamp_value,
+        retrieved_at,
+        stale_after_seconds,
     )
     warnings.append(
         "absence of a trip update is treated as unknown realtime coverage, not on-time service"

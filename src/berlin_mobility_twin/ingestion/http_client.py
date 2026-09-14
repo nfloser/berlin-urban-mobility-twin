@@ -43,7 +43,7 @@ class MobilityHttpClient:
         if self._owned_client:
             self._client.close()
 
-    def __enter__(self) -> "MobilityHttpClient":
+    def __enter__(self) -> MobilityHttpClient:
         return self
 
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:

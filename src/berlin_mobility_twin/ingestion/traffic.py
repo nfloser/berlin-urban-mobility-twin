@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import csv
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from io import StringIO
 from typing import Any
@@ -215,7 +215,11 @@ def parse_traffic_csv(
                 reasons.append(f"invalid timestamp: {exc}")
 
         try:
-            count = _parse_optional_int(row.get(schema.vehicle_count)) if schema.vehicle_count else None
+            count = (
+                _parse_optional_int(row.get(schema.vehicle_count))
+                if schema.vehicle_count
+                else None
+            )
             heavy = (
                 _parse_optional_int(row.get(schema.heavy_vehicle_count))
                 if schema.heavy_vehicle_count

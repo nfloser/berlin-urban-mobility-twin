@@ -17,7 +17,9 @@ from berlin_mobility_twin.domain.models import (
 BERLIN_TZ = ZoneInfo("Europe/Berlin")
 SOURCE_ID = "berlin-road-disruptions"
 PROVIDER = "Digitale Plattform Stadtverkehr Berlin"
-DATASET_TITLE = "Baustellen, Sperrungen und sonstige Störungen von besonderem verkehrlichem Interesse"
+DATASET_TITLE = (
+    "Baustellen, Sperrungen und sonstige Störungen von besonderem verkehrlichem Interesse"
+)
 LICENCE = "dl-de-by-2.0"
 
 
