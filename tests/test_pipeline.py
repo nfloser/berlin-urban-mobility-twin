@@ -52,32 +52,38 @@ def test_refresh_berlin_road_sources_populates_detectors_and_disruptions() -> No
     disruption_url = "https://api.viz.berlin.de/tic3/baustellen_sperrungen_tic.json"
     detectors = {
         "type": "FeatureCollection",
-        "features": [{
-            "type": "Feature",
-            "properties": {"teuID": "D1", "Position": "A100"},
-            "geometry": {"type": "Point", "coordinates": [13.4, 52.5]},
-        }],
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {"teuID": "D1", "Position": "A100"},
+                "geometry": {"type": "Point", "coordinates": [13.4, 52.5]},
+            }
+        ],
     }
     disruptions = {
         "type": "FeatureCollection",
-        "features": [{
-            "type": "Feature",
-            "properties": {
-                "id": "X1",
-                "subtype": "Sperrung",
-                "validity": {"from": "14.09.2026 00:00", "to": "15.09.2026 00:00"},
-                "content": "gesperrt",
-            },
-            "geometry": {"type": "Point", "coordinates": [13.41, 52.51]},
-        }],
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "id": "X1",
+                    "subtype": "Sperrung",
+                    "validity": {"from": "14.09.2026 00:00", "to": "15.09.2026 00:00"},
+                    "content": "gesperrt",
+                },
+                "geometry": {"type": "Point", "coordinates": [13.41, 52.51]},
+            }
+        ],
     }
     state = RuntimeState()
     refresh_berlin_road_sources(
         state,
-        StubClient({
-            detector_url: json.dumps(detectors).encode(),
-            disruption_url: json.dumps(disruptions).encode(),
-        }),
+        StubClient(
+            {
+                detector_url: json.dumps(detectors).encode(),
+                disruption_url: json.dumps(disruptions).encode(),
+            }
+        ),
     )
     assert state.traffic_detectors[0].detector_id == "D1"
     assert state.disruptions[0].disruption_id == "X1"

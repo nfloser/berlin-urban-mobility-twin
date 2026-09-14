@@ -21,8 +21,7 @@ def build_gtfs(stop_id_in_times: str = "S1") -> bytes:
             "R1,VBB,U2,Pankow - Ruhleben,1\n"
         ),
         "trips.txt": (
-            "route_id,service_id,trip_id,trip_headsign,direction_id\n"
-            "R1,WK,T1,Ruhleben,0\n"
+            "route_id,service_id,trip_id,trip_headsign,direction_id\nR1,WK,T1,Ruhleben,0\n"
         ),
         "stop_times.txt": (
             "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n"

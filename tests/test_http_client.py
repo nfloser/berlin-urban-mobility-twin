@@ -31,9 +31,7 @@ def test_http_client_uses_conditional_etag_and_preserves_not_modified_state() ->
         return httpx.Response(304, request=request)
 
     with httpx.Client(transport=httpx.MockTransport(handler)) as raw:
-        result = MobilityHttpClient(client=raw).fetch(
-            "https://example.test/data", etag='"old"'
-        )
+        result = MobilityHttpClient(client=raw).fetch("https://example.test/data", etag='"old"')
 
     assert result.not_modified is True
     assert result.content is None

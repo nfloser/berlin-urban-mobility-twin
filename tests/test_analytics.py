@@ -89,9 +89,7 @@ def test_headway_deviation_uses_consecutive_observed_times() -> None:
 
 def test_detector_summary_keeps_missing_measurements_out_of_denominators() -> None:
     at = datetime(2026, 9, 14, 10, tzinfo=UTC)
-    missing_speed = traffic(at + timedelta(hours=1), 120).model_copy(
-        update={"speed_kmh": None}
-    )
+    missing_speed = traffic(at + timedelta(hours=1), 120).model_copy(update={"speed_kmh": None})
     result = detector_summary([traffic(at, 100, 40), missing_speed])
     assert result.observation_count == 2
     assert result.mean_vehicle_count == 110

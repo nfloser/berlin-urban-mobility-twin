@@ -92,8 +92,7 @@ def test_duplicate_detector_timestamp_is_not_silently_kept_twice() -> None:
 
 def test_suspicious_speed_is_retained_with_quality_warning_not_repaired() -> None:
     csv_payload = (
-        "detector;timestamp;count;heavy;speed\n"
-        "D1;2026-01-15 10:00:00;100;10;180\n"
+        "detector;timestamp;count;heavy;speed\nD1;2026-01-15 10:00:00;100;10;180\n"
     ).encode()
 
     result = parse_traffic_csv(
@@ -110,8 +109,7 @@ def test_suspicious_speed_is_retained_with_quality_warning_not_repaired() -> Non
 
 def test_traffic_csv_rejects_nonexistent_berlin_dst_timestamp() -> None:
     csv_payload = (
-        "detector;timestamp;count;heavy;speed\n"
-        "D1;2026-03-29 02:30:00;100;10;42\n"
+        "detector;timestamp;count;heavy;speed\nD1;2026-03-29 02:30:00;100;10;42\n"
     ).encode()
 
     result = parse_traffic_csv(

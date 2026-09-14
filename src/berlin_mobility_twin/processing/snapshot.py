@@ -39,9 +39,7 @@ def _latest_traffic(
     return sorted(latest.values(), key=lambda item: item.detector_id)
 
 
-def _active_disruptions(
-    disruptions: Iterable[Disruption], timestamp: datetime
-) -> list[Disruption]:
+def _active_disruptions(disruptions: Iterable[Disruption], timestamp: datetime) -> list[Disruption]:
     active = []
     for disruption in disruptions:
         if disruption.valid_from is not None and disruption.valid_from > timestamp:

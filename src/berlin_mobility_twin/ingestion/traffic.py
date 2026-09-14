@@ -216,9 +216,7 @@ def parse_traffic_csv(
 
         try:
             count = (
-                _parse_optional_int(row.get(schema.vehicle_count))
-                if schema.vehicle_count
-                else None
+                _parse_optional_int(row.get(schema.vehicle_count)) if schema.vehicle_count else None
             )
             heavy = (
                 _parse_optional_int(row.get(schema.heavy_vehicle_count))

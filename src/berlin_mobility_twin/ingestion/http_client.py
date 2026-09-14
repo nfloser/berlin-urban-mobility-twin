@@ -6,8 +6,7 @@ from datetime import UTC, datetime
 import httpx
 
 DEFAULT_USER_AGENT = (
-    "berlin-urban-mobility-twin/0.1 "
-    "(+https://github.com/nfloser/berlin-urban-mobility-twin)"
+    "berlin-urban-mobility-twin/0.1 (+https://github.com/nfloser/berlin-urban-mobility-twin)"
 )
 
 
