@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from math import hypot
 
 from pyproj import Transformer
 
@@ -34,4 +35,4 @@ def distance_meters(
     """Compute distance after projection to a metric CRS appropriate for Berlin."""
     first_x, first_y = project_point(first, source_crs=source_crs, target_crs=metric_crs)
     second_x, second_y = project_point(second, source_crs=source_crs, target_crs=metric_crs)
-    return ((second_x - first_x) ** 2 + (second_y - first_y) ** 2) ** 0.5
+    return hypot(second_x - first_x, second_y - first_y)

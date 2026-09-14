@@ -102,8 +102,9 @@ def parse_disruptions(
                 freshness=FreshnessStatus.UNKNOWN,
                 quality_warnings=quality_warnings,
             )
-            street = (properties.get("street") or "").strip()
-            content = (properties.get("content") or "").strip()
+            street = str(properties.get("street") or "").strip()
+            content = str(properties.get("content") or "").strip()
+            description: str | None
             if street and content:
                 description = f"{street}: {content}"
             else:

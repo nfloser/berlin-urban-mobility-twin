@@ -35,8 +35,8 @@ def annotate_temporal_quality(
     by_detector: dict[str, list[TrafficObservation]] = defaultdict(list)
 
     for observation in observations:
-        previous = previous_in_source_order.get(observation.detector_id)
-        if previous is not None and observation.observed_at < previous:
+        previous_timestamp = previous_in_source_order.get(observation.detector_id)
+        if previous_timestamp is not None and observation.observed_at < previous_timestamp:
             issues.append(
                 TemporalQualityIssue(
                     detector_id=observation.detector_id,
@@ -50,13 +50,19 @@ def annotate_temporal_quality(
 
     for detector_id, detector_observations in by_detector.items():
         ordered = sorted(detector_observations, key=lambda item: item.observed_at)
-        for previous, current in zip(ordered, ordered[1:], strict=False):
-            interval = int((current.observed_at - previous.observed_at).total_seconds())
+        for previous_observation, current_observation in zip(
+            ordered,
+            ordered[1:],
+            strict=False,
+        ):
+            interval = int(
+                (current_observation.observed_at - previous_observation.observed_at).total_seconds()
+            )
             if interval > expected_interval_seconds:
                 issues.append(
                     TemporalQualityIssue(
                         detector_id=detector_id,
-                        observed_at=current.observed_at,
+                        observed_at=current_observation.observed_at,
                         kind="gap",
                         message=(
                             f"temporal gap {interval}s exceeds configured expected interval "

@@ -183,7 +183,7 @@ def parse_gtfs_rt(
 ) -> RealtimeFeedResult:
     """Decode binary GTFS-Realtime data using the official Python bindings."""
     try:
-        from google.transit import gtfs_realtime_pb2
+        from google.transit import gtfs_realtime_pb2  # type: ignore[import-untyped]
     except ImportError as exc:  # pragma: no cover - exercised in installed environments
         raise RuntimeError(
             "gtfs-realtime-bindings is required to decode binary GTFS-RT payloads"

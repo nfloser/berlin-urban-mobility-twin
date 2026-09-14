@@ -54,45 +54,45 @@ def export_mobility_snapshot(
     detector_by_id = {item.detector_id: item for item in detectors}
     states: list[MobilityStateRecord] = []
 
-    for observation in snapshot.transit:
-        stop = stop_by_id.get(observation.stop_id or "")
+    for transit_observation in snapshot.transit:
+        stop = stop_by_id.get(transit_observation.stop_id or "")
         states.append(
             MobilityStateRecord(
                 domain=MobilityDomain.TRANSIT,
-                entity_id=observation.trip_id,
-                location_reference=observation.stop_id,
-                timestamp=observation.observed_at,
+                entity_id=transit_observation.trip_id,
+                location_reference=transit_observation.stop_id,
+                timestamp=transit_observation.observed_at,
                 geometry=_point(stop.longitude, stop.latitude) if stop is not None else None,
-                observation_status=observation.availability,
-                provenance=observation.provenance,
-                freshness=observation.provenance.freshness,
-                quality=observation.quality,
+                observation_status=transit_observation.availability,
+                provenance=transit_observation.provenance,
+                freshness=transit_observation.provenance.freshness,
+                quality=transit_observation.quality,
                 metrics={
-                    "delay_seconds": observation.delay_seconds,
-                    "cancelled": observation.cancelled,
+                    "delay_seconds": transit_observation.delay_seconds,
+                    "cancelled": transit_observation.cancelled,
                 },
             )
         )
 
-    for observation in snapshot.traffic:
-        detector = detector_by_id.get(observation.detector_id)
+    for traffic_observation in snapshot.traffic:
+        detector = detector_by_id.get(traffic_observation.detector_id)
         states.append(
             MobilityStateRecord(
                 domain=MobilityDomain.TRAFFIC,
-                entity_id=observation.detector_id,
-                location_reference=observation.detector_id,
-                timestamp=observation.observed_at,
+                entity_id=traffic_observation.detector_id,
+                location_reference=traffic_observation.detector_id,
+                timestamp=traffic_observation.observed_at,
                 geometry=(
                     _point(detector.longitude, detector.latitude) if detector is not None else None
                 ),
-                observation_status=observation.availability,
-                provenance=observation.provenance,
-                freshness=observation.provenance.freshness,
-                quality=observation.quality,
+                observation_status=traffic_observation.availability,
+                provenance=traffic_observation.provenance,
+                freshness=traffic_observation.provenance.freshness,
+                quality=traffic_observation.quality,
                 metrics={
-                    "vehicle_count": observation.vehicle_count,
-                    "heavy_vehicle_count": observation.heavy_vehicle_count,
-                    "speed_kmh": observation.speed_kmh,
+                    "vehicle_count": traffic_observation.vehicle_count,
+                    "heavy_vehicle_count": traffic_observation.heavy_vehicle_count,
+                    "speed_kmh": traffic_observation.speed_kmh,
                 },
             )
         )
