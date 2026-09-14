@@ -12,6 +12,7 @@ from berlin_mobility_twin.domain.models import (
     TransitObservation,
     TransitRoute,
     TransitStop,
+    TransitTrip,
 )
 from berlin_mobility_twin.processing.snapshot import build_snapshot
 
@@ -20,6 +21,7 @@ from berlin_mobility_twin.processing.snapshot import build_snapshot
 class RuntimeState:
     stops: list[TransitStop] = field(default_factory=list)
     routes: list[TransitRoute] = field(default_factory=list)
+    trips: list[TransitTrip] = field(default_factory=list)
     transit_observations: list[TransitObservation] = field(default_factory=list)
     traffic_detectors: list[TrafficDetector] = field(default_factory=list)
     traffic_observations: list[TrafficObservation] = field(default_factory=list)
