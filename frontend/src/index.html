@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive real-data view of the Berlin Urban Mobility Twin." />
+    <title>Berlin Urban Mobility Twin</title>
+    <link rel="preconnect" href="https://unpkg.com" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="panel" aria-label="Mobility twin status">
+        <header class="brand">
+          <div class="eyebrow">Research software · Berlin</div>
+          <h1>Urban Mobility Twin</h1>
+          <p>
+            Observable mobility state from VBB and Berlin open data, with explicit provenance,
+            freshness and missing-data semantics.
+          </p>
+        </header>
+
+        <section class="status-card" aria-labelledby="system-heading">
+          <div class="section-heading">
+            <h2 id="system-heading">System state</h2>
+            <span id="system-badge" class="badge neutral">Loading</span>
+          </div>
+          <div id="counts" class="metric-grid" aria-live="polite"></div>
+          <p id="refresh-time" class="microcopy">Loading API state…</p>
+        </section>
+
+        <section aria-labelledby="layers-heading">
+          <div class="section-heading"><h2 id="layers-heading">Map layers</h2></div>
+          <div class="legend">
+            <div><span class="dot transit"></span><span>Transit stops</span></div>
+            <div><span class="dot detector"></span><span>Traffic detectors</span></div>
+            <div><span class="dot disruption"></span><span>Published disruptions</span></div>
+          </div>
+          <p class="microcopy">
+            Colours identify data layers only; they are not an inferred congestion or severity score.
+          </p>
+        </section>
+
+        <section aria-labelledby="quality-heading">
+          <div class="section-heading"><h2 id="quality-heading">Availability & quality</h2></div>
+          <div id="warnings" class="message-list" aria-live="polite"></div>
+        </section>
+
+        <section aria-labelledby="sources-heading" class="sources-section">
+          <div class="section-heading"><h2 id="sources-heading">Sources</h2></div>
+          <div id="sources" class="sources"></div>
+        </section>
+
+        <button id="reload" class="reload" type="button">Reload API state</button>
+        <p class="microcopy">
+          Reloading reads the server state; provider refresh is controlled by the ingestion runtime.
+        </p>
+      </aside>
+
+      <section class="map-wrap" aria-label="Interactive Berlin mobility map">
+        <div id="map"></div>
+        <div class="map-overlay">
+          <strong>Real observations only</strong>
+          <span id="map-note">No synthetic production data is rendered.</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
