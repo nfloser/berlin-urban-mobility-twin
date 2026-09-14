@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from io import StringIO
 from typing import Any
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from berlin_mobility_twin.domain.models import (
     DataAvailability,
@@ -16,6 +15,7 @@ from berlin_mobility_twin.domain.models import (
     TrafficDetector,
     TrafficObservation,
 )
+from berlin_mobility_twin.processing.temporal import local_to_utc
 
 BERLIN_TRAFFIC_PROVIDER = "Digitale Plattform Stadtverkehr Berlin"
 BERLIN_TRAFFIC_LICENCE = "dl-de-by-2.0"
@@ -31,6 +31,7 @@ class TrafficCsvSchema:
     delimiter: str = ";"
     timestamp_format: str = "%Y-%m-%d %H:%M:%S"
     source_timezone: str = "Europe/Berlin"
+    timestamp_fold: int | None = None
 
     @property
     def required_columns(self) -> set[str]:
@@ -164,11 +165,11 @@ def _parse_optional_float(value: str | None) -> float | None:
 
 def _parse_source_timestamp(value: str, schema: TrafficCsvSchema) -> datetime:
     naive = datetime.strptime(value, schema.timestamp_format)
-    try:
-        timezone = ZoneInfo(schema.source_timezone)
-    except ZoneInfoNotFoundError as exc:
-        raise ValueError(f"unknown source timezone {schema.source_timezone!r}") from exc
-    return naive.replace(tzinfo=timezone).astimezone(UTC)
+    return local_to_utc(
+        naive,
+        schema.source_timezone,
+        fold=schema.timestamp_fold,
+    )
 
 
 def parse_traffic_csv(
