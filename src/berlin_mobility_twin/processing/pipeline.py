@@ -19,6 +19,7 @@ from berlin_mobility_twin.ingestion.traffic import (
     parse_detector_locations,
     parse_traffic_csv,
 )
+from berlin_mobility_twin.processing.traffic_quality import annotate_temporal_quality
 
 
 class FetchClient(Protocol):
@@ -159,7 +160,7 @@ def refresh_live_sources(
     for source_id, operation in operations:
         try:
             operation()
-        except Exception as exc:
+        except Exception as exc:  # provider failures must degrade, not fabricate data
             failed[source_id] = _record_source_error(state, source_id, exc)
         else:
             succeeded.append(source_id)
@@ -174,6 +175,7 @@ def load_traffic_archive(
     schema: TrafficCsvSchema,
     retrieved_at: datetime,
     source_url: str,
+    expected_interval_seconds: int | None = None,
 ) -> TrafficIngestionResult:
     """Load historical detector observations with an explicit, inspected CSV mapping."""
     result = parse_traffic_csv(
@@ -182,6 +184,17 @@ def load_traffic_archive(
         retrieved_at=retrieved_at,
         source_url=source_url,
     )
+    if expected_interval_seconds is not None:
+        temporal = annotate_temporal_quality(
+            result.observations,
+            expected_interval_seconds=expected_interval_seconds,
+        )
+        result = TrafficIngestionResult(
+            raw_rows=result.raw_rows,
+            observations=temporal.observations,
+            rejected_rows=result.rejected_rows,
+            diagnostics=result.diagnostics,
+        )
     state.traffic_observations = result.observations
     state.source_status["berlin-traffic-detectors"] = FreshnessStatus.UNKNOWN
     _clear_source_error(state, "berlin-traffic-detectors")

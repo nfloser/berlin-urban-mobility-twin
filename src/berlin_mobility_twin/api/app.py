@@ -121,7 +121,11 @@ def create_app(state: RuntimeState | None = None, *, serve_frontend: bool = True
         at: AwareDatetime | None = Query(default=None, description="Timezone-aware point in time"),
     ) -> IntegrationMobilitySnapshot:
         moment = at.astimezone(UTC) if at is not None else datetime.now(UTC)
-        return export_mobility_snapshot(runtime.snapshot(moment))
+        return export_mobility_snapshot(
+            runtime.snapshot(moment),
+            stops=runtime.stops,
+            detectors=runtime.traffic_detectors,
+        )
 
     @app.get(
         "/api/v1/integration/network-disruptions",

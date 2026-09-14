@@ -12,8 +12,15 @@ from berlin_mobility_twin.domain.models import (
     DisruptionCategory,
     FreshnessStatus,
     Provenance,
+    TrafficDetector,
+    TrafficObservation,
+    TransitObservation,
+    TransitStop,
 )
-from berlin_mobility_twin.integration.contracts import export_network_disruption
+from berlin_mobility_twin.integration.contracts import (
+    export_mobility_snapshot,
+    export_network_disruption,
+)
 from berlin_mobility_twin.processing.pipeline import refresh_live_sources
 
 
@@ -48,6 +55,46 @@ def test_network_disruption_contract_preserves_provenance_and_confidence() -> No
     assert exported.observation_status == DataAvailability.OBSERVED
     assert exported.provenance.source_id == "berlin-road-disruptions"
     assert exported.confidence is None
+
+
+def test_mobility_integration_contract_resolves_spatial_references() -> None:
+    transit_provenance = provenance().model_copy(update={"source_id": "vbb-gtfs-rt"})
+    traffic_provenance = provenance().model_copy(update={"source_id": "berlin-traffic-detectors"})
+    state = RuntimeState(required_sources=set())
+    state.transit_observations = [
+        TransitObservation(
+            trip_id="TRIP1",
+            stop_id="S1",
+            observed_at=datetime(2026, 9, 14, 12, 55, tzinfo=UTC),
+            delay_seconds=60,
+            availability=DataAvailability.REALTIME,
+            quality=DataQuality(),
+            provenance=transit_provenance,
+        )
+    ]
+    state.traffic_observations = [
+        TrafficObservation(
+            detector_id="T1",
+            observed_at=datetime(2026, 9, 14, 12, 50, tzinfo=UTC),
+            vehicle_count=100,
+            speed_kmh=42,
+            availability=DataAvailability.HISTORICAL,
+            quality=DataQuality(),
+            provenance=traffic_provenance,
+        )
+    ]
+    snapshot = state.snapshot(datetime(2026, 9, 14, 13, tzinfo=UTC))
+    exported = export_mobility_snapshot(
+        snapshot,
+        stops=[TransitStop(stop_id="S1", name="Stop", latitude=52.5, longitude=13.4)],
+        detectors=[TrafficDetector(detector_id="T1", latitude=52.51, longitude=13.41)],
+    )
+    assert exported.timestamp == snapshot.timestamp
+    assert len(exported.states) == 2
+    assert exported.states[0].geometry == {"type": "Point", "coordinates": [13.4, 52.5]}
+    assert exported.states[1].geometry == {"type": "Point", "coordinates": [13.41, 52.51]}
+    assert exported.states[0].metrics["delay_seconds"] == 60
+    assert exported.states[1].metrics["speed_kmh"] == 42
 
 
 def test_integration_endpoints_and_aware_timestamp_validation() -> None:

@@ -182,6 +182,28 @@ class Disruption(BaseModel):
         return self
 
 
+class MobilityDomain(StrEnum):
+    TRANSIT = "transit"
+    TRAFFIC = "traffic"
+
+
+class MobilityStateRecord(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    domain: MobilityDomain
+    entity_id: str
+    location_reference: str | None = None
+    timestamp: AwareDatetime
+    geometry: dict[str, Any] | None = None
+    crs: str = "EPSG:4326"
+    observation_status: DataAvailability
+    provenance: Provenance
+    freshness: FreshnessStatus
+    quality: DataQuality
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    metrics: dict[str, int | float | bool | None] = Field(default_factory=dict)
+
+
 class NetworkDisruption(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -218,4 +240,10 @@ class IntegrationMobilitySnapshot(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     schema_version: str = "1.0.0"
-    snapshot: MobilitySnapshot
+    timestamp: AwareDatetime
+    states: list[MobilityStateRecord] = Field(default_factory=list)
+    disruptions: list[NetworkDisruption] = Field(default_factory=list)
+    source_status: dict[str, FreshnessStatus] = Field(default_factory=dict)
+    source_errors: dict[str, str] = Field(default_factory=dict)
+    missing_sources: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
