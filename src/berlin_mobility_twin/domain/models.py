@@ -185,8 +185,14 @@ class Disruption(BaseModel):
 class NetworkDisruption(BaseModel):
     model_config = ConfigDict(frozen=True)
 
+    schema_version: str = "1.0.0"
+    disruption_id: str
     timestamp: AwareDatetime
+    valid_from: AwareDatetime | None = None
+    valid_until: AwareDatetime | None = None
+    description: str | None = None
     geometry: dict[str, Any]
+    crs: str = "EPSG:4326"
     category: DisruptionCategory
     observation_status: DataAvailability
     provenance: Provenance
@@ -203,5 +209,13 @@ class MobilitySnapshot(BaseModel):
     traffic: list[TrafficObservation] = Field(default_factory=list)
     disruptions: list[Disruption] = Field(default_factory=list)
     source_status: dict[str, FreshnessStatus] = Field(default_factory=dict)
+    source_errors: dict[str, str] = Field(default_factory=dict)
     missing_sources: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
+
+
+class IntegrationMobilitySnapshot(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    schema_version: str = "1.0.0"
+    snapshot: MobilitySnapshot

@@ -59,11 +59,13 @@ def build_snapshot(
     traffic_observations: Iterable[TrafficObservation],
     disruptions: Iterable[Disruption],
     source_status: Mapping[str, FreshnessStatus],
+    source_errors: Mapping[str, str] | None = None,
     required_sources: Set[str] | set[str] | frozenset[str] = frozenset(),
 ) -> MobilitySnapshot:
     """Construct a point-in-time state using only information known by the timestamp."""
     if timestamp.tzinfo is None or timestamp.utcoffset() is None:
         raise ValueError("snapshot timestamp must be timezone-aware")
+    errors = dict(source_errors or {})
     missing_sources = sorted(source for source in required_sources if source not in source_status)
     warnings = [f"source {source} is missing" for source in missing_sources]
     for source, status in sorted(source_status.items()):
@@ -73,6 +75,8 @@ def build_snapshot(
             FreshnessStatus.UNKNOWN,
         ):
             warnings.append(f"source {source} freshness is {status.value}")
+    for source, message in sorted(errors.items()):
+        warnings.append(f"source {source} failed: {message}")
 
     return MobilitySnapshot(
         timestamp=timestamp,
@@ -80,6 +84,7 @@ def build_snapshot(
         traffic=_latest_traffic(traffic_observations, timestamp),
         disruptions=_active_disruptions(disruptions, timestamp),
         source_status=dict(source_status),
+        source_errors=errors,
         missing_sources=missing_sources,
         warnings=warnings,
     )

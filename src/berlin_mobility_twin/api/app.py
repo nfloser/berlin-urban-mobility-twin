@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+import os
 from datetime import UTC, datetime
+from pathlib import Path
 
 from fastapi import FastAPI, Query
+from fastapi.staticfiles import StaticFiles
+from pydantic import AwareDatetime
 
 from berlin_mobility_twin.api.state import RuntimeState
 from berlin_mobility_twin.domain.models import (
     DataSource,
     Disruption,
+    IntegrationMobilitySnapshot,
     MobilitySnapshot,
+    NetworkDisruption,
     TrafficDetector,
     TrafficObservation,
     TransitObservation,
@@ -17,9 +23,20 @@ from berlin_mobility_twin.domain.models import (
     TransitTrip,
 )
 from berlin_mobility_twin.ingestion.sources import SOURCES
+from berlin_mobility_twin.integration.contracts import (
+    export_mobility_snapshot,
+    export_network_disruption,
+)
 
 
-def create_app(state: RuntimeState | None = None) -> FastAPI:
+def _resolve_frontend_dir() -> Path:
+    configured = os.getenv("MOBILITY_FRONTEND_DIR")
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parents[3] / "frontend" / "dist"
+
+
+def create_app(state: RuntimeState | None = None, *, serve_frontend: bool = True) -> FastAPI:
     runtime = state or RuntimeState()
     app = FastAPI(
         title="Berlin Urban Mobility Twin API",
@@ -29,13 +46,12 @@ def create_app(state: RuntimeState | None = None) -> FastAPI:
     app.state.mobility = runtime
 
     @app.get("/api/v1/health")
-    def health() -> dict[str, str]:
-        has_any = bool(
-            runtime.transit_observations
-            or runtime.traffic_observations
-            or runtime.disruptions
-        )
-        return {"status": "ok" if has_any else "degraded"}
+    def health() -> dict[str, object]:
+        return {
+            "status": runtime.health_status,
+            "missing_sources": runtime.missing_sources,
+            "source_errors": runtime.source_errors,
+        }
 
     @app.get("/api/v1/sources")
     def sources() -> list[DataSource]:
@@ -44,8 +60,16 @@ def create_app(state: RuntimeState | None = None) -> FastAPI:
     @app.get("/api/v1/status")
     def status() -> dict[str, object]:
         return {
-            "status": "ok" if runtime.source_status else "degraded",
+            "status": runtime.health_status,
             "source_status": {key: value.value for key, value in runtime.source_status.items()},
+            "source_errors": dict(runtime.source_errors),
+            "missing_sources": runtime.missing_sources,
+            "entity_counts": {
+                "stops": len(runtime.stops),
+                "routes": len(runtime.routes),
+                "trips": len(runtime.trips),
+                "detectors": len(runtime.traffic_detectors),
+            },
             "observation_counts": {
                 "transit": len(runtime.transit_observations),
                 "traffic": len(runtime.traffic_observations),
@@ -84,12 +108,35 @@ def create_app(state: RuntimeState | None = None) -> FastAPI:
 
     @app.get("/api/v1/mobility/snapshot", response_model=MobilitySnapshot)
     def mobility_snapshot(
-        at: datetime | None = Query(default=None, description="Timezone-aware point in time"),
+        at: AwareDatetime | None = Query(default=None, description="Timezone-aware point in time"),
     ) -> MobilitySnapshot:
-        moment = at or datetime.now(UTC)
-        if moment.tzinfo is None or moment.utcoffset() is None:
-            raise ValueError("snapshot query timestamp must include a timezone offset")
-        return runtime.snapshot(moment.astimezone(UTC))
+        moment = at.astimezone(UTC) if at is not None else datetime.now(UTC)
+        return runtime.snapshot(moment)
+
+    @app.get(
+        "/api/v1/integration/mobility-snapshot",
+        response_model=IntegrationMobilitySnapshot,
+    )
+    def integration_mobility_snapshot(
+        at: AwareDatetime | None = Query(default=None, description="Timezone-aware point in time"),
+    ) -> IntegrationMobilitySnapshot:
+        moment = at.astimezone(UTC) if at is not None else datetime.now(UTC)
+        return export_mobility_snapshot(runtime.snapshot(moment))
+
+    @app.get(
+        "/api/v1/integration/network-disruptions",
+        response_model=list[NetworkDisruption],
+    )
+    def integration_network_disruptions(
+        at: AwareDatetime | None = Query(default=None, description="Timezone-aware point in time"),
+    ) -> list[NetworkDisruption]:
+        moment = at.astimezone(UTC) if at is not None else datetime.now(UTC)
+        active = runtime.snapshot(moment).disruptions
+        return [export_network_disruption(item, timestamp=moment) for item in active]
+
+    frontend_dir = _resolve_frontend_dir()
+    if serve_frontend and frontend_dir.is_dir():
+        app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
 
     return app
 

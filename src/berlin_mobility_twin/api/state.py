@@ -27,6 +27,7 @@ class RuntimeState:
     traffic_observations: list[TrafficObservation] = field(default_factory=list)
     disruptions: list[Disruption] = field(default_factory=list)
     source_status: dict[str, FreshnessStatus] = field(default_factory=dict)
+    source_errors: dict[str, str] = field(default_factory=dict)
     required_sources: set[str] = field(
         default_factory=lambda: {
             "vbb-gtfs-static",
@@ -36,6 +37,14 @@ class RuntimeState:
         }
     )
 
+    @property
+    def missing_sources(self) -> list[str]:
+        return sorted(source for source in self.required_sources if source not in self.source_status)
+
+    @property
+    def health_status(self) -> str:
+        return "degraded" if self.missing_sources or self.source_errors else "ok"
+
     def snapshot(self, timestamp: datetime | None = None) -> MobilitySnapshot:
         moment = timestamp or datetime.now(UTC)
         return build_snapshot(
@@ -44,5 +53,6 @@ class RuntimeState:
             traffic_observations=self.traffic_observations,
             disruptions=self.disruptions,
             source_status=self.source_status,
+            source_errors=self.source_errors,
             required_sources=self.required_sources,
         )
