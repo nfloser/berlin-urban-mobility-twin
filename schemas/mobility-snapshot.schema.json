@@ -1,0 +1,507 @@
+{
+  "$defs": {
+    "DataAvailability": {
+      "enum": [
+        "scheduled",
+        "observed",
+        "realtime",
+        "historical",
+        "missing",
+        "unknown"
+      ],
+      "title": "DataAvailability",
+      "type": "string"
+    },
+    "DataQuality": {
+      "properties": {
+        "is_valid": {
+          "default": true,
+          "title": "Is Valid",
+          "type": "boolean"
+        },
+        "severity": {
+          "$ref": "#/$defs/QualitySeverity",
+          "default": "info"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "DataQuality",
+      "type": "object"
+    },
+    "Disruption": {
+      "properties": {
+        "affected_network_segment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Affected Network Segment"
+        },
+        "category": {
+          "$ref": "#/$defs/DisruptionCategory"
+        },
+        "crs": {
+          "default": "EPSG:4326",
+          "title": "Crs",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "disruption_id": {
+          "title": "Disruption Id",
+          "type": "string"
+        },
+        "geometry": {
+          "additionalProperties": true,
+          "title": "Geometry",
+          "type": "object"
+        },
+        "network_match_confidence": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Network Match Confidence"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "quality": {
+          "$ref": "#/$defs/DataQuality"
+        },
+        "valid_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid From"
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid Until"
+        }
+      },
+      "required": [
+        "disruption_id",
+        "category",
+        "geometry",
+        "provenance"
+      ],
+      "title": "Disruption",
+      "type": "object"
+    },
+    "DisruptionCategory": {
+      "enum": [
+        "construction",
+        "closure",
+        "incident",
+        "event",
+        "other",
+        "unknown"
+      ],
+      "title": "DisruptionCategory",
+      "type": "string"
+    },
+    "FreshnessStatus": {
+      "enum": [
+        "fresh",
+        "stale",
+        "expired",
+        "unknown"
+      ],
+      "title": "FreshnessStatus",
+      "type": "string"
+    },
+    "MobilitySnapshot": {
+      "properties": {
+        "disruptions": {
+          "items": {
+            "$ref": "#/$defs/Disruption"
+          },
+          "title": "Disruptions",
+          "type": "array"
+        },
+        "missing_sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Sources",
+          "type": "array"
+        },
+        "source_errors": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Errors",
+          "type": "object"
+        },
+        "source_status": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FreshnessStatus"
+          },
+          "title": "Source Status",
+          "type": "object"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "traffic": {
+          "items": {
+            "$ref": "#/$defs/TrafficObservation"
+          },
+          "title": "Traffic",
+          "type": "array"
+        },
+        "transit": {
+          "items": {
+            "$ref": "#/$defs/TransitObservation"
+          },
+          "title": "Transit",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "timestamp"
+      ],
+      "title": "MobilitySnapshot",
+      "type": "object"
+    },
+    "Provenance": {
+      "properties": {
+        "dataset_title": {
+          "minLength": 1,
+          "title": "Dataset Title",
+          "type": "string"
+        },
+        "freshness": {
+          "$ref": "#/$defs/FreshnessStatus",
+          "default": "unknown"
+        },
+        "licence": {
+          "minLength": 1,
+          "title": "Licence",
+          "type": "string"
+        },
+        "observation_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observation At"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "quality_warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quality Warnings",
+          "type": "array"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "schema_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schema Version"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_metadata_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Metadata Url"
+        },
+        "source_url": {
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "provider",
+        "dataset_title",
+        "retrieved_at",
+        "source_url",
+        "licence"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "QualitySeverity": {
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "title": "QualitySeverity",
+      "type": "string"
+    },
+    "TrafficObservation": {
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/DataAvailability"
+        },
+        "detector_id": {
+          "title": "Detector Id",
+          "type": "string"
+        },
+        "heavy_vehicle_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heavy Vehicle Count"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "quality": {
+          "$ref": "#/$defs/DataQuality"
+        },
+        "raw": {
+          "additionalProperties": true,
+          "title": "Raw",
+          "type": "object"
+        },
+        "speed_kmh": {
+          "anyOf": [
+            {
+              "maximum": 250,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Speed Kmh"
+        },
+        "vehicle_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vehicle Count"
+        }
+      },
+      "required": [
+        "detector_id",
+        "observed_at",
+        "availability",
+        "quality",
+        "provenance"
+      ],
+      "title": "TrafficObservation",
+      "type": "object"
+    },
+    "TransitObservation": {
+      "properties": {
+        "availability": {
+          "$ref": "#/$defs/DataAvailability"
+        },
+        "cancelled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cancelled"
+        },
+        "delay_seconds": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delay Seconds"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "predicted_arrival": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predicted Arrival"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "quality": {
+          "$ref": "#/$defs/DataQuality"
+        },
+        "scheduled_arrival": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scheduled Arrival"
+        },
+        "stop_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stop Id"
+        },
+        "trip_id": {
+          "title": "Trip Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trip_id",
+        "observed_at",
+        "availability",
+        "quality",
+        "provenance"
+      ],
+      "title": "TransitObservation",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "snapshot": {
+      "$ref": "#/$defs/MobilitySnapshot"
+    }
+  },
+  "required": [
+    "snapshot"
+  ],
+  "title": "IntegrationMobilitySnapshot",
+  "type": "object"
+}

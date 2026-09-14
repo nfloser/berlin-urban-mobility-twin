@@ -13,7 +13,6 @@ from berlin_mobility_twin.api.state import RuntimeState
 from berlin_mobility_twin.config import Settings
 from berlin_mobility_twin.domain.models import (
     IntegrationMobilitySnapshot,
-    MobilitySnapshot,
     NetworkDisruption,
 )
 from berlin_mobility_twin.ingestion.http_client import MobilityHttpClient
@@ -35,7 +34,6 @@ def export_schemas(output_dir: Path) -> list[Path]:
     outputs = [
         (IntegrationMobilitySnapshot, output_dir / "mobility-snapshot.schema.json"),
         (NetworkDisruption, output_dir / "network-disruption.schema.json"),
-        (MobilitySnapshot, output_dir / "internal-mobility-snapshot.schema.json"),
     ]
     for model, path in outputs:
         _write_schema(model, path)

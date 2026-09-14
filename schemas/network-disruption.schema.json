@@ -1,0 +1,266 @@
+{
+  "$defs": {
+    "DataAvailability": {
+      "enum": [
+        "scheduled",
+        "observed",
+        "realtime",
+        "historical",
+        "missing",
+        "unknown"
+      ],
+      "title": "DataAvailability",
+      "type": "string"
+    },
+    "DataQuality": {
+      "properties": {
+        "is_valid": {
+          "default": true,
+          "title": "Is Valid",
+          "type": "boolean"
+        },
+        "severity": {
+          "$ref": "#/$defs/QualitySeverity",
+          "default": "info"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "DataQuality",
+      "type": "object"
+    },
+    "DisruptionCategory": {
+      "enum": [
+        "construction",
+        "closure",
+        "incident",
+        "event",
+        "other",
+        "unknown"
+      ],
+      "title": "DisruptionCategory",
+      "type": "string"
+    },
+    "FreshnessStatus": {
+      "enum": [
+        "fresh",
+        "stale",
+        "expired",
+        "unknown"
+      ],
+      "title": "FreshnessStatus",
+      "type": "string"
+    },
+    "Provenance": {
+      "properties": {
+        "dataset_title": {
+          "minLength": 1,
+          "title": "Dataset Title",
+          "type": "string"
+        },
+        "freshness": {
+          "$ref": "#/$defs/FreshnessStatus",
+          "default": "unknown"
+        },
+        "licence": {
+          "minLength": 1,
+          "title": "Licence",
+          "type": "string"
+        },
+        "observation_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observation At"
+        },
+        "provider": {
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "quality_warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Quality Warnings",
+          "type": "array"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "schema_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schema Version"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_metadata_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Metadata Url"
+        },
+        "source_url": {
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "provider",
+        "dataset_title",
+        "retrieved_at",
+        "source_url",
+        "licence"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "QualitySeverity": {
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "title": "QualitySeverity",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "category": {
+      "$ref": "#/$defs/DisruptionCategory"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence"
+    },
+    "crs": {
+      "default": "EPSG:4326",
+      "title": "Crs",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "disruption_id": {
+      "title": "Disruption Id",
+      "type": "string"
+    },
+    "freshness": {
+      "$ref": "#/$defs/FreshnessStatus"
+    },
+    "geometry": {
+      "additionalProperties": true,
+      "title": "Geometry",
+      "type": "object"
+    },
+    "observation_status": {
+      "$ref": "#/$defs/DataAvailability"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "quality": {
+      "$ref": "#/$defs/DataQuality"
+    },
+    "schema_version": {
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "valid_from": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid From"
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid Until"
+    }
+  },
+  "required": [
+    "disruption_id",
+    "timestamp",
+    "geometry",
+    "category",
+    "observation_status",
+    "provenance",
+    "freshness",
+    "quality"
+  ],
+  "title": "NetworkDisruption",
+  "type": "object"
+}

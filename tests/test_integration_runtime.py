@@ -109,7 +109,6 @@ def test_schema_export_contains_stable_contract_fields(tmp_path) -> None:
     assert {path.name for path in paths} == {
         "mobility-snapshot.schema.json",
         "network-disruption.schema.json",
-        "internal-mobility-snapshot.schema.json",
     }
     mobility = (tmp_path / "mobility-snapshot.schema.json").read_text(encoding="utf-8")
     disruption = (tmp_path / "network-disruption.schema.json").read_text(encoding="utf-8")

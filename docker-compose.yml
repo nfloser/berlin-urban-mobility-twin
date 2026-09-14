@@ -1,0 +1,7 @@
+services:
+  mobility-twin:
+    build: .
+    ports:
+      - "8000:8000"
+    command: ["berlin-mobility-twin", "serve", "--live", "--host", "0.0.0.0", "--port", "8000"]
+    restart: unless-stopped
