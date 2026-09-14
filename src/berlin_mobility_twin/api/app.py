@@ -14,6 +14,7 @@ from berlin_mobility_twin.domain.models import (
     TransitObservation,
     TransitRoute,
     TransitStop,
+    TransitTrip,
 )
 from berlin_mobility_twin.ingestion.sources import SOURCES
 
@@ -60,6 +61,10 @@ def create_app(state: RuntimeState | None = None) -> FastAPI:
     @app.get("/api/v1/transit/routes")
     def transit_routes() -> list[TransitRoute]:
         return runtime.routes
+
+    @app.get("/api/v1/transit/trips")
+    def transit_trips() -> list[TransitTrip]:
+        return runtime.trips
 
     @app.get("/api/v1/transit/state")
     def transit_state() -> list[TransitObservation]:
