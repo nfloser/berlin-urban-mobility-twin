@@ -1,12 +1,12 @@
 # Berlin Urban Mobility Twin
 
-A reproducible, explainable and test-driven research digital twin of Berlin's mobility system. The project integrates genuine public-transport, traffic-detector and disruption data while keeping provenance, freshness, quality and missing-data semantics explicit.
+Berlin Urban Mobility Twin is a research system for working with Berlin public-transport, traffic-detector and disruption data. It records where each observation came from, how recent it is, its quality and where data is missing. The results can be reproduced and checked through tests.
 
 ## Research motivation
 
-Urban mobility data is heterogeneous: timetable data describes planned service, GTFS-Realtime describes only the realtime information currently published by operators, detector archives contain raw measurements that may include errors, and disruption feeds describe events rather than guaranteed network-edge effects. Treating these sources as one complete and perfectly current picture would be scientifically misleading.
+These sources describe different parts of mobility. Timetables show planned service; GTFS-Realtime contains only the updates operators publish; detector archives include raw measurements with possible errors; and disruption feeds describe events without proving their effects on individual road segments. Together they do not provide a complete, continuously current picture.
 
-This project therefore models an **observable mobility state** rather than an assumed ground truth. Every state is timestamped; unavailable, stale and unknown information stays visible; and no synthetic observation is inserted into production state to make the map appear complete.
+The project models an **observable mobility state**. Every state has a timestamp, unavailable or stale data remains visible, and synthetic observations are never inserted to fill gaps in production state.
 
 ## Objectives
 

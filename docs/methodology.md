@@ -1,6 +1,6 @@
 # Methodology
 
-The project favours transparent descriptive and baseline analytics over opaque mobility scores. Every implemented metric is defined below with inputs and limitations.
+The project reports descriptive statistics and explicit baselines rather than combining observations into an opaque mobility score. Each metric includes its inputs and limitations.
 
 ## Transit delay distribution
 
@@ -78,7 +78,7 @@ and, when population standard deviation \(\sigma>0\):
 z=\frac{q_{current}-\bar q}{\sigma}
 \]
 
-The result is marked unavailable when the configured minimum sample count is not met. This is a transparent statistical comparison, not a trained anomaly model.
+The result is marked unavailable when the configured minimum sample count is not met. It compares current counts with historical observations; no anomaly model is trained.
 
 Limitation: matching by UTC hour is reproducible but may not perfectly correspond to local civil-time behavioural periods across DST seasons. Research using long seasonal windows should consider an explicit local-time baseline design.
 
